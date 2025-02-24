@@ -1,0 +1,16 @@
+Things to be done ---
+1) Need to store the data eother in local or using any of the cloud service. - Azure or AWS.
+2) we need a way to display all te parts or components in a single part or basically we need to fetch.
+    ->This can be done when we need to make the "VISISBILTY COMPONENT" in the txt part.
+    ->The other we need it to make it public visible only in the main page which can be sorted based upon the require mont of the user but user in main page can see bothe "public" and "only his private".
+    ->The user can also sort "ONLY FOR THE PRIVATE".
+3) Impelent ing the role base authentication
+    ->In this the user can also be the admin or user
+    ->admin can set the user to admin
+4) Aut0 implemnentation and learning the (single sign on )
+5)Liimitation 
+6)CQRS
+7) Rate limiting 
+7) Event searching
+
+
