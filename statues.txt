@@ -1,6 +1,6 @@
 Things to be done ---
 1) Need to store the data eother in local or using any of the cloud service. - Azure or AWS.  //done 
---ROLE BASSED AUTHENTICATION 
+--ROLE BASSED AUTHENTICATION //done 
 2) Impelent ing the role base authentication
     ->In this the user can also be the admin or user
     ->admin can set the user to admin
