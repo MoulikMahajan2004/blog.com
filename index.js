@@ -29,7 +29,7 @@ const BlogModel = require('./model/Blogmodel');
 const upload = require('./config/Multer')
 //--------------------------------------------------
 //Middleware -
-//const {CheckAuth} = require('./middleware/Authentication');
+const { RoleBasedAccess } = require('./middleware/Authentication');
 
 
 
@@ -110,7 +110,7 @@ app.get('/blog', async (req, res) => {
         console.log(blogData);
         console.log(cookieData.Email); // Check this to ensure the payload is as expected.
         //fetching the detail 
-        const Userdetail = await UserModel.findOne({ Email: cookieData.Email }, { Email: 1, Username: 1,ProfilePicture:1 });
+        const Userdetail = await UserModel.findOne({ Email: cookieData.Email }, { Email: 1, Username: 1, ProfilePicture: 1 });
         //if the detail is notfetched and someone changed the key then redirect to login page 
         if (!Userdetail) return res.redirect('/');
         console.log(Userdetail.Email, Userdetail.Username);
@@ -133,7 +133,7 @@ app.post('/create', upload.array('filenames', 3), async (req, res) => {
         //console.log('Missing fields. Redirecting...');
         return res.redirect('/create');
     }
-  //  if(req.files.lastIndexOf)
+    //  if(req.files.lastIndexOf)
     try {
         // Create a new blog entry
         //here we are fetching the user detail using the cookie and entrying the data in the blog post created by which user 
@@ -143,7 +143,7 @@ app.post('/create', upload.array('filenames', 3), async (req, res) => {
             BlogCreatedBy: Created_by._id,
             blogheading: req.body.Blogheading,
             BlogData: req.body.blogcontent,
-            BlogImage:req.files.map((file)=>file.filename)
+            BlogImage: req.files.map((file) => file.filename)
         });
         //This is when the user enter the blog and it upodated the user model by pusing the newly created post id to the array of the user
         await UserModel.updateOne({ _id: Created_by._id }, { $push: { BlogPost: blog._id } })
@@ -167,12 +167,13 @@ app.post('/create', upload.array('filenames', 3), async (req, res) => {
     }
 });
 
-app.get('/uploadProfileimage',(req,res)=>{
+app.get('/uploadProfileimage', RoleBasedAccess("User"), (req, res) => {
     res.render('Profileupdate.ejs')
 })
-app.post('/uploadProfileimage',upload.single('profilepicture'),async (req,res)=>{
-    const cookie_detail = jwt.verify(req.cookies.Token,"test");
-    const Userdetail = await UserModel.findOne({Email:cookie_detail.Email});
+
+app.post('/uploadProfileimage', upload.single('profilepicture'), async (req, res) => {
+    const cookie_detail = jwt.verify(req.cookies.Token, "test");
+    const Userdetail = await UserModel.findOne({ Email: cookie_detail.Email });
     Userdetail.ProfilePicture = req.file.filename;
     Userdetail.save();
     res.redirect('/blog')
