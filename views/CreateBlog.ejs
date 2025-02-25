@@ -13,7 +13,7 @@
     <h1>POST THE BLOG HERE</h1>
 
     <!-- Form for Blog Submission -->
-     <!-- The multipart tell that we are upload ing the images or filest etc  -->
+    <!-- The multipart tell that we are upload ing the images or filest etc  -->
     <form action="/create" enctype="multipart/form-data" method="post" id="blogform">
         <!-- Blog Heading -->
         <input type="text" placeholder="BLOG HEADING" style="width: 100%; height:100; margin-bottom: 10px;"
@@ -23,16 +23,16 @@
         <textarea name="blogcontent" style="width:100%;height: 100%; scale:auto; margin-bottom: 10px;"
             required>dESCRIBE HERE </textarea>
         <!-- imgae upload -->
-        <input type="file" name="filename">
+        <input type="file" name="filenames" multiple>
         <button type="submit" style="height: 40px; width: 300px;">POST</button>
     </form>
-    
-<!-- MULTI PART MEARNING WE CAN UPLOAD THE FILE USING THE FORM AND IT SEND ANY TYPE OF THE FILE  -->
+
+    <!-- MULTI PART MEARNING WE CAN UPLOAD THE FILE USING THE FORM AND IT SEND ANY TYPE OF THE FILE  -->
     <!-- <form action="/upload" enctype="multipart/form-data" method="post" id="blogform"> -->
-        <!-- Submit Button -->
-        <!-- <input type="file" name="filename"> -->
-        <!-- Submit Button -->
-        <!-- <button type="submit" style="height: 40px; width: 300px;">UPLOAD</button> -->
+    <!-- Submit Button -->
+    <!-- <input type="file" name="filename"> -->
+    <!-- Submit Button -->
+    <!-- <button type="submit" style="height: 40px; width: 300px;">UPLOAD</button> -->
     <!-- </form> -->
 
 </body>

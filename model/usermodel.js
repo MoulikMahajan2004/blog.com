@@ -27,6 +27,11 @@ const userschema = mongo.Schema({
     BlogPost:{
         type:Array,
         default:[]
+    },
+    ProfilePicture:{
+        type:String,
+        default:"image.png"
+        
     }
 })
 

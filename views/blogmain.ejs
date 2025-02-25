@@ -6,20 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="../public/js/script.js"></script>
     <title>Document</title>
+    <style>
+        /* Circle profile image styles */
+        .profile-img {
+            width: 50px; /* Adjust the size as needed */
+            height: 50px; /* Equal width and height for a circle */
+            border-radius: 50%; /* Makes the image circular */
+            object-fit: cover; /* Ensures the image covers the entire circle */
+            border: 2px solid #ddd; /* Optional: Adds a border around the image */
+        }
+    </style>
 </head>
 
 <body>
-    <h1>main blog page all data of all the users posted</h1>
-    
-    <h2>User Data <%=`${Userdetail.Email}, ${Userdetail.Username}` %>
-        <h1> <%= `${blogData._id}` %> </h1>
-        <h1> <%= `${blogData.blogheading}` %> </h1>
-        
-    <a href="/create">POST A BLOG</a>    
+    <h1>Main Blog Page - All Data of All the Users Posted</h1>
 
+    <h2>User Data: <%= `${Userdetail.Email}, ${Userdetail.Username}` %></h2>
 
+    <h1><%= `${blogData._id}` %></h1>
+    <h1><%= `${blogData.blogheading}` %></h1>
 
-    </h2>
+    <!-- Display Profile Picture with proper image path -->
+    <div class="w-10 h-10 overflow-hidden" style="width: 10; height: 10;"> 
+        <img class="profile-img" src="/images/uploads/<%= Userdetail.ProfilePicture %>" alt="Profile Picture">
+    </div>
+
+    <!-- Link to create a blog -->
+    <a href="/create">POST A BLOG</a>
+
 </body>
 
 </html>

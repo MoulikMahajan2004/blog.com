@@ -8,48 +8,29 @@ const PORT = 9000
 const Path = require('path');
 const crypto = require('crypto');
 const path = require('path');
-//MODEL - 
-const UserModel = require('./model/usermodel');
-const BlogModel = require('./model/Blogmodel');
-
-
-//-----------------------file upload ----------
-// Import necessary modules
-const multer = require('multer');
-
-// Multer instance
-//const upload = multer({ storage: Storage });
-const cookieParser = require('cookie-parser');
-
-//Middleware -
-//const {CheckAuth} = require('./middleware/Authentication');
-
-const storage = multer.diskStorage({
-    //setting the destination of the file
-    destination: function (req, file, cb) {
-        cb(null, './public/images/uploads')
-    },
-    //setting the unique name of the file
-    filename: function (req, file, cb) {
-        //use the crypto library to randomly generate the name of the file 
-        crypto.randomBytes(12, function (err, bytes) {
-            //here we are generating the random number of the file bytes for the file and converting them to hex and to get the file extenstion we habe used the path and the file orignal for the fetching of it.
-            const fn = bytes.toString("hex") + path.extname(file.originalname);
-            //null is the errro and fn is the file name
-            cb(null, fn);
-        })
-    }
-})
-
-const upload = multer({ storage: storage });
-
-//setting the frontend engine
-app.set('view engine', 'ejs');
 app.use(express.static(Path.join(__dirname, 'public')));
+//setting the frontend engine
+const cookieParser = require('cookie-parser');
+app.set('view engine', 'ejs');
+
 //form data
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+
+
+//------------------MODEL ------------------------
+const UserModel = require('./model/usermodel');
+const BlogModel = require('./model/Blogmodel');
+//--------------------------------------------------
+
+//-----------------------file upload ---------------
+const upload = require('./config/Multer')
+//--------------------------------------------------
+//Middleware -
+//const {CheckAuth} = require('./middleware/Authentication');
+
 
 
 
@@ -80,7 +61,7 @@ app.post('/', async (req, res) => {
             }, "test", {
                 algorithm: 'HS512',
                 //token expires in 30 seconds 1000 = 1 second
-                expiresIn: "30000"
+                expiresIn: "300000"
             })
             //storing the token in the cookie
             //This also help in refreshing the cookie and making to remove once it the session is over 
@@ -115,8 +96,7 @@ app.post('/signup', (req, res) => {
     res.redirect("/");
 })
 
-//----------------------------------------------------mainpage--------------------------------------------
-
+//----------------------------------------------------mainpage-----------------------------------------
 app.get('/blog', async (req, res) => {
     //sending the user data to the main page 
     const Tokenextract = req.cookies.Token;
@@ -130,7 +110,7 @@ app.get('/blog', async (req, res) => {
         console.log(blogData);
         console.log(cookieData.Email); // Check this to ensure the payload is as expected.
         //fetching the detail 
-        const Userdetail = await UserModel.findOne({ Email: cookieData.Email }, { Email: 1, Username: 1 });
+        const Userdetail = await UserModel.findOne({ Email: cookieData.Email }, { Email: 1, Username: 1,ProfilePicture:1 });
         //if the detail is notfetched and someone changed the key then redirect to login page 
         if (!Userdetail) return res.redirect('/');
         console.log(Userdetail.Email, Userdetail.Username);
@@ -146,25 +126,26 @@ app.get('/create', (req, res) => {
     res.render('CreateBlog');
 })
 
-app.post('/create', upload.single('filename'), async (req, res) => {
+app.post('/create', upload.array('filenames', 3), async (req, res) => {
     console.log('trigger');
     // Check if both Blogheading and blogcontent are present
     if (!req.body.Blogheading || !req.body.blogcontent) {
         //console.log('Missing fields. Redirecting...');
         return res.redirect('/create');
     }
+  //  if(req.files.lastIndexOf)
     try {
         // Create a new blog entry
-        //here we are fetching the user detail using the cooie and entrying the data in the blog post created by which user 
+        //here we are fetching the user detail using the cookie and entrying the data in the blog post created by which user 
         const cookie = jwt.verify(req.cookies.Token, "test");
         const Created_by = await UserModel.findOne({ Email: cookie.Email }, { _id: 1 });
         const blog = await BlogModel.create({
             BlogCreatedBy: Created_by._id,
             blogheading: req.body.Blogheading,
             BlogData: req.body.blogcontent,
-            BlogImage: req.file.filename,
+            BlogImage:req.files.map((file)=>file.filename)
         });
-        //This is when the user enter the blog and it upodated the user model by pusing the newly created post id to the array of the userModel
+        //This is when the user enter the blog and it upodated the user model by pusing the newly created post id to the array of the user
         await UserModel.updateOne({ _id: Created_by._id }, { $push: { BlogPost: blog._id } })
 
         // Redirect to the homepage or a success page
@@ -186,6 +167,16 @@ app.post('/create', upload.single('filename'), async (req, res) => {
     }
 });
 
+app.get('/uploadProfileimage',(req,res)=>{
+    res.render('Profileupdate.ejs')
+})
+app.post('/uploadProfileimage',upload.single('profilepicture'),async (req,res)=>{
+    const cookie_detail = jwt.verify(req.cookies.Token,"test");
+    const Userdetail = await UserModel.findOne({Email:cookie_detail.Email});
+    Userdetail.ProfilePicture = req.file.filename;
+    Userdetail.save();
+    res.redirect('/blog')
+})
 //---------------------------------------------------listner---------------------------------- 
 app.listen(PORT, () => {
     console.log("SERVER STARTED");
