@@ -13,6 +13,10 @@ const blogSchema = mongo.Schema({
     BlogImage: {
         type: Array,
         default: []
+    },
+    BlogVisibility:{
+        type:String,
+        default:"Public"
     }
 })
 

@@ -105,16 +105,17 @@ app.get('/blog', async (req, res) => {
     try {
         const cookieData = jwt.verify(Tokenextract, "test");
         // const blogData = await BlogModel.find();
-        const blogData = await BlogModel.findOne({ _id: new ObjectId('677f507274a128dc8632c5d8') }, { blogheading: 1 });
+      //  const blogData = await BlogModel.findOne({ _id:  }, { blogheading: 1 });
         // const blogData = await BlogModel.find({_id:'677f507274a128dc8632c5d8'},{blogheading:1});
-        console.log(blogData);
+       // console.log(blogData);
         console.log(cookieData.Email); // Check this to ensure the payload is as expected.
         //fetching the detail 
         const Userdetail = await UserModel.findOne({ Email: cookieData.Email }, { Email: 1, Username: 1, ProfilePicture: 1 });
         //if the detail is notfetched and someone changed the key then redirect to login page 
         if (!Userdetail) return res.redirect('/');
+        const UserBlog = await BlogModel.find({BlogVisibility:"Public"},{Blogheading:1,BlogData:1,BlogImage:1,_id:0});
         console.log(Userdetail.Email, Userdetail.Username);
-        res.render('blogmain', { Userdetail, blogData });
+        res.render('blogmain', { Userdetail,UserBlog });
     } catch (err) {
         console.log(err);
         res.redirect('/');
@@ -126,10 +127,10 @@ app.get('/create', (req, res) => {
     res.render('CreateBlog');
 })
 
-app.post('/create', upload.array('filenames', 3), async (req, res) => {
+app.post('/create', upload.array('filenames', 1), async (req, res) => {
     console.log('trigger');
     // Check if both Blogheading and blogcontent are present
-    if (!req.body.Blogheading || !req.body.blogcontent) {
+    if (!req.body.heading || !req.body.blogcontent) {
         //console.log('Missing fields. Redirecting...');
         return res.redirect('/create');
     }
@@ -141,9 +142,10 @@ app.post('/create', upload.array('filenames', 3), async (req, res) => {
         const Created_by = await UserModel.findOne({ Email: cookie.Email }, { _id: 1 });
         const blog = await BlogModel.create({
             BlogCreatedBy: Created_by._id,
-            blogheading: req.body.Blogheading,
+            Blogheading: req.body.heading,
             BlogData: req.body.blogcontent,
-            BlogImage: req.files.map((file) => file.filename)
+            BlogImage: req.files.map((file) => file.filename),
+            BlogVisibility:req.body.public || req.body.private
         });
         //This is when the user enter the blog and it upodated the user model by pusing the newly created post id to the array of the user
         await UserModel.updateOne({ _id: Created_by._id }, { $push: { BlogPost: blog._id } })
